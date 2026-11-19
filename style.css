@@ -1,5 +1,14 @@
 
-/* L'OREAL SMART BEAUTY ADVISOR */
+/* L'Oréal Routine Builder — Project 9 */
+
+:root {
+  --navy: #101c35;
+  --navy-light: #1d3152;
+  --gold: #d8b76a;
+  --cream: #faf7f0;
+  --white: #ffffff;
+  --text: #253047;
+}
 
 * {
   box-sizing: border-box;
@@ -7,99 +16,186 @@
 
 body {
   margin: 0;
-  padding: 30px 15px;
   font-family: 'Montserrat', sans-serif;
-  background: linear-gradient(135deg, #fff8f8, #f8e8e8);
-  color: #222;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.6;
 }
 
 .page-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 1200px;
+  margin: auto;
 }
 
 .site-header {
+  background: linear-gradient(135deg, var(--navy), var(--navy-light));
+  color: white;
   text-align: center;
-  margin-bottom: 30px;
+  padding: 65px 24px;
 }
 
 .brand-name {
-  font-size: 30px;
+  color: var(--gold);
+  font-size: 28px;
   font-weight: 700;
-  letter-spacing: 5px;
-  color: #111;
+  letter-spacing: 4px;
 }
 
-.site-title {
-  font-size: 32px;
-  color: #b88938;
-  margin-bottom: 10px;
+.site-header h1 {
+  font-size: clamp(30px, 5vw, 48px);
+  margin: 12px 0;
 }
 
 .subtitle {
-  font-size: 17px;
+  color: var(--gold);
   font-weight: 600;
-  color: #a36b78;
 }
 
-.chatbox {
+main {
+  padding: 30px 20px;
+}
+
+section {
   background: white;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 10px 35px rgba(0,0,0,0.1);
-  border: 1px solid #ead8d8;
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 28px;
+  box-shadow: 0 5px 25px rgba(16, 28, 53, 0.08);
+}
+
+h2 {
+  color: var(--navy);
+  margin-top: 0;
+}
+
+.product-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 25px 0;
+}
+
+.product-controls label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+input, select {
+  font: inherit;
+  padding: 13px;
+  border: 1px solid #d6d6d6;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.product-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.product-card img {
+  width: 100%;
+  height: 155px;
+  object-fit: contain;
+}
+
+.product-card h3 {
+  font-size: 15px;
+  color: var(--navy);
+}
+
+button {
+  font: inherit;
+  background: var(--navy);
+  color: white;
+  border: none;
+  padding: 13px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: var(--navy-light);
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+#showMoreBtn {
+  display: block;
+  margin: 25px auto 0;
+}
+
+.selected-products {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.selected-item {
+  background: var(--cream);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+#generateRoutineBtn {
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+#generateRoutineBtn:hover {
+  background: #e7c985;
+}
+
+#routineOutput {
+  background: var(--cream);
+  border-left: 4px solid var(--gold);
+  padding: 20px;
+  border-radius: 8px;
 }
 
 .chat-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.chat-header h2 {
-  color: #b88938;
-  font-size: 22px;
-}
-
-.chat-header p {
-  color: #777;
+  margin-bottom: 18px;
 }
 
 .chat-window {
-  height: 350px;
+  min-height: 180px;
+  max-height: 350px;
   overflow-y: auto;
-  padding: 15px;
-  border-radius: 12px;
-  background: #fff9fa;
-  border: 1px solid #eee;
-}
-
-.message {
-  max-width: 85%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 12px;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.message.user {
-  margin-left: auto;
-  background: #fce4ec;
-}
-
-.message.assistant {
-  margin-right: auto;
-  background: #f1f1f1;
-}
-
-.chat-form {
-  margin-top: 20px;
+  background: var(--cream);
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 18px;
 }
 
 .chat-form label {
   display: block;
-  margin-bottom: 10px;
   font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .input-container {
@@ -107,64 +203,43 @@ body {
   gap: 10px;
 }
 
-#userInput {
+.input-container input {
   flex: 1;
   min-width: 0;
-  padding: 14px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 14px;
-}
-
-#userInput:focus {
-  outline: 2px solid #b88938;
 }
 
 .send-button {
-  background: #111;
-  color: white;
-  border: none;
-  padding: 14px 22px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.send-button:hover {
-  background: #b88938;
+  white-space: nowrap;
 }
 
 .site-footer {
+  background: var(--navy);
+  color: white;
   text-align: center;
-  margin-top: 30px;
-  color: #777;
+  padding: 28px 20px;
   font-size: 12px;
-  line-height: 1.8;
 }
 
-@media (max-width: 600px) {
-  body {
-    padding: 15px 10px;
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .brand-name {
-    font-size: 23px;
+  .product-controls {
+    grid-template-columns: 1fr;
   }
 
-  .site-title {
-    font-size: 25px;
+  section {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: 1fr;
   }
 
-  .chatbox {
-    padding: 15px;
-  }
-
-  .chat-window {
-    height: 400px;
-  }
-
-  .send-button {
-    padding: 12px;
+  .input-container {
+    flex-direction: column;
   }
 }
