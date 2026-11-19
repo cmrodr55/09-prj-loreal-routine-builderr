@@ -3,21 +3,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
   <title>L'Oréal Routine Builder</title>
 
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
 </head>
 
 <body>
   <div class="page-wrapper">
 
+    <!-- HEADER -->
     <header class="site-header">
       <p class="brand-name">L'ORÉAL PARIS</p>
+
       <h1>Routine Builder</h1>
-      <p class="subtitle">Because You're Worth It</p>
+
+      <p class="subtitle">
+        Because You're Worth It
+      </p>
+
       <p>
         Discover beauty products and create a
         personalized routine designed just for you.
@@ -26,56 +37,101 @@
 
     <main>
 
+      <!-- PRODUCT CATALOG -->
       <section class="product-section">
         <h2>Discover Your Products</h2>
-        <p>Explore products and build your perfect routine.</p>
+
+        <p>
+          Explore products and build your perfect routine.
+        </p>
 
         <div class="product-controls">
-          <label for="searchInput">Search products</label>
+
+          <label for="searchInput">
+            Search products
+          </label>
+
           <input
             type="search"
             id="searchInput"
             placeholder="Search products..."
           >
 
-          <label for="categoryFilter">Filter by category</label>
+          <label for="categoryFilter">
+            Filter by category
+          </label>
+
           <select id="categoryFilter">
             <option value="all">All Categories</option>
             <option value="cleanser">Cleansers</option>
             <option value="moisturizer">Moisturizers</option>
-            <option value="serum">Serums</option>
-            <option value="sunscreen">Sunscreen</option>
+            <option value="skincare">Skincare</option>
             <option value="haircare">Haircare</option>
             <option value="makeup">Makeup</option>
+            <option value="hair color">Hair Color</option>
+            <option value="hair styling">Hair Styling</option>
+            <option value="men's grooming">
+              Men's Grooming
+            </option>
+            <option value="suncare">Suncare</option>
+            <option value="fragrance">Fragrance</option>
           </select>
+
         </div>
 
-        <div id="productGrid" class="product-grid">
-          <!-- Product cards will appear here -->
-        </div>
+        <!-- Products loaded from products.json -->
+        <div
+          id="productGrid"
+          class="product-grid"
+          aria-live="polite"
+        ></div>
 
         <button id="showMoreBtn" type="button">
           Show More Products
         </button>
+
       </section>
 
+      <!-- SELECTED PRODUCTS -->
       <section class="selected-section">
         <h2>Selected Products</h2>
-        <p>Choose products to include in your routine.</p>
 
-        <div id="selectedProducts" class="selected-products">
+        <p>
+          Choose products to include in your routine.
+        </p>
+
+        <div
+          id="selectedProducts"
+          class="selected-products"
+          aria-live="polite"
+        >
           <p>No products selected yet.</p>
         </div>
 
-        <button id="generateRoutineBtn" type="button">
+        <button
+          id="generateRoutineBtn"
+          type="button"
+        >
           ✨ Generate My Routine
         </button>
+
+        <button
+          id="clearSelectionsBtn"
+          type="button"
+        >
+          Clear All Selections
+        </button>
+
       </section>
 
+      <!-- PERSONALIZED ROUTINE -->
       <section class="routine-section">
         <h2>Your Personalized Routine</h2>
 
-        <div id="routineOutput" aria-live="polite">
+        <div
+          id="routineOutput"
+          aria-live="polite"
+        >
           <p>
             Your personalized beauty routine
             will appear here.
@@ -83,9 +139,12 @@
         </div>
       </section>
 
+      <!-- AI CHATBOT -->
       <section class="chatbox">
+
         <div class="chat-header">
           <h2>About Your Routine</h2>
+
           <p>
             Ask your personal beauty assistant
             about your selected products.
@@ -99,12 +158,17 @@
           aria-label="Chat conversation"
         ></div>
 
-        <form id="chatForm" class="chat-form">
+        <form
+          id="chatForm"
+          class="chat-form"
+        >
+
           <label for="userInput">
             Your beauty question
           </label>
 
           <div class="input-container">
+
             <input
               type="text"
               id="userInput"
@@ -117,24 +181,32 @@
             <button
               type="submit"
               class="send-button"
+              aria-label="Send message"
             >
               Send ➤
             </button>
+
           </div>
         </form>
+
       </section>
 
     </main>
 
+    <!-- FOOTER -->
     <footer class="site-footer">
+
       <p>L'Oréal Routine Builder</p>
+
       <p>
         Educational project created for
         the Global Career Accelerator.
       </p>
+
       <p>
         Not affiliated with or endorsed by L'Oréal.
       </p>
+
     </footer>
 
   </div>
