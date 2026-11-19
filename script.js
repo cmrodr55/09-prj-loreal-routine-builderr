@@ -1,5 +1,5 @@
 
-/* L'OREAL ROUTINE BUILDER — PROJECT 9 */
+/* L'ORÉAL ROUTINE BUILDER — PROJECT 9 | FREE DEMO */
 
 document.addEventListener("DOMContentLoaded", async () => {
   const $ = id => document.getElementById(id);
@@ -16,30 +16,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const userInput = $("userInput");
   const chatWindow = $("chatWindow");
 
-  const WORKER_URL =
-    "https://loreal-beauty-advisor.cmrodr55.workers.dev";
-
   const STORAGE_KEY = "loreal-project9-products";
 
   let products = [];
   let visibleCount = 6;
   let lastRoutine = "";
-  let conversationHistory = [];
-  let busy = false;
 
-  const required = [
-    productGrid, searchInput, categoryFilter,
-    selectedContainer, showMoreBtn, generateBtn,
-    clearBtn, routineOutput, chatForm,
-    userInput, chatWindow
-  ];
-
-  if (required.some(element => !element)) {
-    console.error("Required HTML elements are missing.");
-    return;
-  }
-
-  // Restore saved product selections.
   let savedIds = [];
 
   try {
@@ -48,53 +30,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     if (Array.isArray(stored)) savedIds = stored;
   } catch (error) {
-    console.warn("Could not read saved products.", error);
+    console.warn("Could not restore selections:", error);
   }
 
   const selectedIds = new Set(savedIds.map(Number));
 
-  const SYSTEM_PROMPT = `
-You are L'Oréal Routine Builder's beauty assistant.
-
-Help users create personalized beauty routines using
-only the product information provided in the conversation.
-
-Stay focused on skincare, haircare, makeup,
-fragrance, grooming, and related beauty topics.
-
-When generating a routine:
-- Use only the selected products.
-- Consider each product's category and description.
-- Organize skincare in a sensible application order.
-- Separate morning and evening steps when appropriate.
-- Explain how to use each selected product.
-- Do not invent ingredients or product benefits.
-- Do not invent products that were not selected.
-- Mention sunscreen when relevant, without claiming
-  that an unselected sunscreen was included.
-- Give cautious advice about irritation and retinol.
-- Avoid medical diagnoses.
-
-For follow-up questions, remember the previous
-conversation and the generated routine.
-
-Use clear, friendly, helpful English.
-`;
-
-  function saveSelections() {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([...selectedIds])
-      );
-    } catch (error) {
-      console.warn("Could not save selections.", error);
-    }
-  }
-
   function getSelected() {
     return products.filter(product =>
-      selectedIds.has(product.id)
+      selectedIds.has(Number(product.id))
+    );
+  }
+
+  function saveSelections() {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([...selectedIds])
     );
   }
 
@@ -106,25 +56,50 @@ Use clear, friendly, helpful English.
     return button;
   }
 
+  function productText(product) {
+    return [
+      product.name,
+      product.brand,
+      product.category,
+      product.description
+    ].join(" ").toLowerCase();
+  }
+
+  function addMessage(role, message) {
+    const bubble = document.createElement("div");
+    bubble.className = "message " + role;
+    bubble.textContent = message;
+    bubble.style.whiteSpace = "pre-wrap";
+    bubble.style.padding = "12px";
+    bubble.style.margin = "10px 0";
+    bubble.style.borderRadius = "12px";
+    bubble.style.background =
+      role === "user" ? "#fff0f3" : "#fff7e7";
+
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+  }
+
   function resetRoutine() {
     lastRoutine = "";
-    conversationHistory = [];
     routineOutput.textContent =
       "Generate a routine using your selected products.";
 
     chatWindow.replaceChildren();
+
     addMessage(
       "assistant",
-      "Your selections have changed. Generate a new " +
-      "routine to start a conversation about them."
+      "Your selections changed. Generate a new routine."
     );
   }
 
   function toggleProduct(id) {
-    if (selectedIds.has(id)) {
-      selectedIds.delete(id);
+    const numericId = Number(id);
+
+    if (selectedIds.has(numericId)) {
+      selectedIds.delete(numericId);
     } else {
-      selectedIds.add(id);
+      selectedIds.add(numericId);
     }
 
     saveSelections();
@@ -134,24 +109,16 @@ Use clear, friendly, helpful English.
   }
 
   function renderProducts() {
-    const query = searchInput.value
-      .trim()
-      .toLowerCase();
-
-    const category = categoryFilter.value;
+    const query = searchInput.value.trim().toLowerCase();
+    const category = categoryFilter.value.toLowerCase();
 
     const filtered = products.filter(product => {
-      const searchable = [
-        product.name,
-        product.brand,
-        product.category,
-        product.description
-      ].join(" ").toLowerCase();
+      const matchesSearch =
+        productText(product).includes(query);
 
-      const matchesSearch = searchable.includes(query);
       const matchesCategory =
         category === "all" ||
-        product.category === category;
+        String(product.category).toLowerCase() === category;
 
       return matchesSearch && matchesCategory;
     });
@@ -159,7 +126,7 @@ Use clear, friendly, helpful English.
     productGrid.replaceChildren();
 
     filtered.slice(0, visibleCount).forEach(product => {
-      const selected = selectedIds.has(product.id);
+      const selected = selectedIds.has(Number(product.id));
 
       const card = document.createElement("article");
       card.className = "product-card";
@@ -169,13 +136,16 @@ Use clear, friendly, helpful English.
         card.style.border = "2px solid #ff003b";
       }
 
-      const image = document.createElement("img");
-      image.src = product.image;
-      image.alt = product.name;
-      image.loading = "lazy";
-      image.style.width = "100%";
-      image.style.height = "150px";
-      image.style.objectFit = "contain";
+      if (product.image) {
+        const image = document.createElement("img");
+        image.src = product.image;
+        image.alt = product.name;
+        image.loading = "lazy";
+        image.style.width = "100%";
+        image.style.height = "150px";
+        image.style.objectFit = "contain";
+        card.appendChild(image);
+      }
 
       const title = document.createElement("h3");
       title.textContent = product.name;
@@ -197,15 +167,7 @@ Use clear, friendly, helpful English.
           detailsButton.textContent = description.hidden
             ? "View Description"
             : "Hide Description";
-          detailsButton.setAttribute(
-            "aria-expanded",
-            String(!description.hidden)
-          );
         }
-      );
-
-      detailsButton.setAttribute(
-        "aria-expanded", "false"
       );
 
       const selectButton = makeButton(
@@ -213,12 +175,7 @@ Use clear, friendly, helpful English.
         () => toggleProduct(product.id)
       );
 
-      selectButton.setAttribute(
-        "aria-pressed", String(selected)
-      );
-
       card.append(
-        image,
         title,
         brand,
         categoryText,
@@ -230,10 +187,9 @@ Use clear, friendly, helpful English.
       productGrid.appendChild(card);
     });
 
-    if (filtered.length === 0) {
-      const empty = document.createElement("p");
-      empty.textContent = "No matching products found.";
-      productGrid.appendChild(empty);
+    if (!filtered.length) {
+      productGrid.textContent =
+        "No matching products found.";
     }
 
     showMoreBtn.hidden =
@@ -246,9 +202,8 @@ Use clear, friendly, helpful English.
     const selected = getSelected();
 
     if (!selected.length) {
-      const empty = document.createElement("p");
-      empty.textContent = "No products selected yet.";
-      selectedContainer.appendChild(empty);
+      selectedContainer.textContent =
+        "No products selected yet.";
       return;
     }
 
@@ -269,183 +224,210 @@ Use clear, friendly, helpful English.
     });
   }
 
-  function addMessage(role, message) {
-    const bubble = document.createElement("div");
-    bubble.className = "message " + role;
-    bubble.textContent = message;
-    bubble.style.whiteSpace = "pre-wrap";
-    bubble.style.padding = "12px";
-    bubble.style.margin = "10px 0";
-    bubble.style.borderRadius = "12px";
-    bubble.style.background =
-      role === "user" ? "#fff0f3" : "#fff7e7";
+  function getOrder(product) {
+    const text = productText(product);
 
-    chatWindow.appendChild(bubble);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
+    if (/cleanser|face wash|shampoo/.test(text)) return 1;
+    if (/toner|essence/.test(text)) return 2;
+    if (/serum|treatment|retinol/.test(text)) return 3;
+    if (/conditioner|hair mask/.test(text)) return 4;
+    if (/moisturiz|cream|lotion/.test(text)) return 5;
+    if (/sunscreen|spf/.test(text)) return 6;
+    if (/makeup|mascara|foundation/.test(text)) return 7;
+
+    return 5;
   }
 
-  function setBusy(value) {
-    busy = value;
-    generateBtn.disabled = value;
-    clearBtn.disabled = value;
-    userInput.disabled = value;
-    chatForm.querySelector(
-      'button[type="submit"]'
-    ).disabled = value;
-  }
+  function getUsage(product) {
+    const text = productText(product);
 
-  async function askAI(message) {
-    if (busy) return null;
-
-    setBusy(true);
-
-    const messages = [
-      {
-        role: "system",
-        content: SYSTEM_PROMPT
-      },
-      ...conversationHistory,
-      {
-        role: "user",
-        content: message
-      }
-    ];
-
-    try {
-      const response = await fetch(WORKER_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ messages })
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          "Worker returned status " + response.status
-        );
-      }
-
-      const data = await response.json();
-
-      const answer =
-        data.choices?.[0]?.message?.content ||
-        data.response ||
-        data.reply ||
-        data.output_text;
-
-      if (typeof answer !== "string" ||
-          !answer.trim()) {
-        throw new Error("Invalid AI response.");
-      }
-
-      conversationHistory.push(
-        { role: "user", content: message },
-        { role: "assistant", content: answer }
-      );
-
-      return answer;
-
-    } catch (error) {
-      console.error("AI request failed:", error);
-
-      addMessage(
-        "assistant",
-        "Sorry, I couldn't connect to the AI service. " +
-        "Please try again later."
-      );
-
-      return null;
-    } finally {
-      setBusy(false);
+    if (/shampoo/.test(text)) {
+      return "Massage into wet hair and rinse.";
     }
+
+    if (/conditioner/.test(text)) {
+      return "Apply after shampoo and rinse.";
+    }
+
+    if (/cleanser|face wash/.test(text)) {
+      return "Gently cleanse the skin and rinse.";
+    }
+
+    if (/sunscreen|spf/.test(text)) {
+      return "Apply as the last morning skincare step.";
+    }
+
+    if (/retinol/.test(text)) {
+      return "Use at night as directed on the label.";
+    }
+
+    if (/serum/.test(text)) {
+      return "Apply after cleansing and before moisturizer.";
+    }
+
+    if (/moisturiz|cream|lotion/.test(text)) {
+      return "Apply after lighter skincare products.";
+    }
+
+    if (/makeup|mascara|foundation/.test(text)) {
+      return "Apply after your morning skincare.";
+    }
+
+    return "Follow the product label for proper use.";
   }
 
-  // Generate a routine with selected product JSON.
-  generateBtn.addEventListener("click", async () => {
-    const selected = getSelected();
+  function buildRoutine() {
+    const selected = [...getSelected()].sort(
+      (a, b) => getOrder(a) - getOrder(b)
+    );
 
     if (!selected.length) {
-      routineOutput.textContent =
-        "Please select at least one product.";
-      return;
+      return "Please select at least one product first.";
     }
 
-    conversationHistory = [];
-    lastRoutine = "";
+    const isMorningOnly = product =>
+      /sunscreen|spf|makeup|mascara|foundation/.test(
+        productText(product)
+      );
+
+    const isNightOnly = product =>
+      /retinol|night cream|pm facial/.test(
+        productText(product)
+      );
+
+    const morning = selected.filter(
+      product => !isNightOnly(product)
+    );
+
+    const evening = selected.filter(
+      product => !isMorningOnly(product)
+    );
+
+    function formatSteps(items) {
+      if (!items.length) {
+        return "No products selected for this section.";
+      }
+
+      return items.map((product, index) =>
+        `${index + 1}. ${product.name} (${product.brand})\n` +
+        `   ${getUsage(product)}`
+      ).join("\n\n");
+    }
+
+    let routine =
+      "YOUR PERSONALIZED ROUTINE — FREE DEMO\n\n" +
+      "☀️ MORNING ROUTINE\n\n" +
+      formatSteps(morning) +
+      "\n\n🌙 NIGHT ROUTINE\n\n" +
+      formatSteps(evening);
+
+    const hasSunscreen = selected.some(
+      product => /sunscreen|spf/.test(productText(product))
+    );
+
+    if (!hasSunscreen) {
+      routine +=
+        "\n\n☀️ Reminder: Consider using broad-spectrum " +
+        "SPF 30+ sunscreen during the day. " +
+        "This is not one of your selected products.";
+    }
+
+    routine +=
+      "\n\nIntroduce new products gradually and " +
+      "follow their instructions." +
+      "\n\nThis routine is generated by a rule-based " +
+      "demo, not a live AI model.";
+
+    return routine;
+  }
+
+  function getDemoResponse(message) {
+    const text = message.toLowerCase();
+    const selected = getSelected();
+
+    if (/hello|hi|hey|hola/.test(text)) {
+      return "Hello! I can help explain your beauty routine.";
+    }
+
+    if (/selected|chosen|my products/.test(text)) {
+      return selected.length
+        ? "Your selected products are:\n" +
+          selected.map(p => "• " + p.name).join("\n")
+        : "You haven't selected any products yet.";
+    }
+
+    if (/routine|morning|night|order|steps/.test(text)) {
+      return lastRoutine || buildRoutine();
+    }
+
+    const matched = selected.find(product =>
+      text.includes(product.name.toLowerCase())
+    );
+
+    if (matched) {
+      return matched.name + "\n\n" +
+        matched.description + "\n\n" +
+        "How to use: " + getUsage(matched);
+    }
+
+    if (/dry|hydration/.test(text)) {
+      return "For dry skin, consider a gentle cleanser, " +
+        "moisturizer, and daytime sunscreen.";
+    }
+
+    if (/oily|acne/.test(text)) {
+      return "For oily skin, consider gentle cleansing " +
+        "and a lightweight moisturizer.";
+    }
+
+    if (/sensitive|irritation/.test(text)) {
+      return "Introduce new products gradually " +
+        "and patch-test when appropriate.";
+    }
+
+    if (/hair|shampoo|conditioner/.test(text)) {
+      return "For haircare, shampoo generally comes " +
+        "before conditioner.";
+    }
+
+    return "I can explain your selected products, " +
+      "their descriptions, and your routine. " +
+      "Try asking: What is my routine?";
+  }
+
+  generateBtn.addEventListener("click", () => {
+    lastRoutine = buildRoutine();
+
+    routineOutput.style.whiteSpace = "pre-wrap";
+    routineOutput.textContent = lastRoutine;
+
     chatWindow.replaceChildren();
-
-    const productData = selected.map(product => ({
-      id: product.id,
-      name: product.name,
-      brand: product.brand,
-      category: product.category,
-      description: product.description
-    }));
-
-    const prompt =
-      "Generate a personalized beauty routine using " +
-      "ONLY these selected products:\n\n" +
-      JSON.stringify(productData, null, 2) +
-      "\n\nExplain the order, usage, and appropriate " +
-      "timing for each product. Keep the routine " +
-      "practical and easy to follow.";
-
-    routineOutput.textContent =
-      "Generating your personalized routine...";
-
-    const answer = await askAI(prompt);
-
-    if (answer) {
-      lastRoutine = answer;
-      routineOutput.style.whiteSpace = "pre-wrap";
-      routineOutput.textContent = answer;
-      addMessage("assistant", answer);
-    } else {
-      routineOutput.textContent =
-        "Could not generate a routine. " +
-        "Please check the AI connection.";
-    }
+    addMessage("assistant", lastRoutine);
   });
 
-  // Continue conversation with full history.
-  chatForm.addEventListener("submit", async event => {
+  chatForm.addEventListener("submit", event => {
     event.preventDefault();
-
-    if (busy) return;
 
     const message = userInput.value.trim();
     if (!message) return;
 
-    if (!lastRoutine) {
-      addMessage(
-        "assistant",
-        "Please generate a routine first so I can " +
-        "answer questions about your selected products."
-      );
-      return;
-    }
-
     addMessage("user", message);
     userInput.value = "";
 
-    const answer = await askAI(message);
-
-    if (answer) {
-      addMessage("assistant", answer);
-    }
+    const response = getDemoResponse(message);
+    addMessage("assistant", response);
   });
 
-  // Clear every saved selection.
-  clearBtn.addEventListener("click", () => {
-    selectedIds.clear();
-    saveSelections();
-    resetRoutine();
-    renderProducts();
-    renderSelected();
-  });
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      selectedIds.clear();
+      saveSelections();
+      resetRoutine();
+      renderProducts();
+      renderSelected();
+    });
+  }
 
-  // Product search LevelUp.
   searchInput.addEventListener("input", () => {
     visibleCount = 6;
     renderProducts();
@@ -461,52 +443,46 @@ Use clear, friendly, helpful English.
     renderProducts();
   });
 
-  // Load the real product catalog.
-  async function loadProducts() {
-    try {
-      const response = await fetch("products.json");
-
-      if (!response.ok) {
-        throw new Error("Could not load products.json");
-      }
-
-      const data = await response.json();
-
-      if (!Array.isArray(data.products)) {
-        throw new Error("Invalid product catalog.");
-      }
-
-      products = data.products;
-
-      // Remove saved IDs no longer in the catalog.
-      const validIds = new Set(
-        products.map(product => product.id)
-      );
-
-      for (const id of selectedIds) {
-        if (!validIds.has(id)) {
-          selectedIds.delete(id);
-        }
-      }
-
-      saveSelections();
-      renderProducts();
-      renderSelected();
-
-    } catch (error) {
-      console.error(error);
-      productGrid.textContent =
-        "Unable to load products. Please refresh " +
-        "the page or check products.json.";
-    }
-  }
-
   addMessage(
     "assistant",
     "Welcome to L'Oréal Routine Builder! 💛 " +
-    "Select your favorite products, generate " +
-    "a routine, and ask me beauty questions."
+    "This free demo helps you build routines " +
+    "and explore beauty products."
   );
 
-  await loadProducts();
+  try {
+    const response = await fetch("products.json");
+
+    if (!response.ok) {
+      throw new Error("Could not load products.json");
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data.products)) {
+      throw new Error("Invalid product catalog.");
+    }
+
+    products = data.products;
+
+    const validIds = new Set(
+      products.map(product => Number(product.id))
+    );
+
+    for (const id of selectedIds) {
+      if (!validIds.has(id)) {
+        selectedIds.delete(id);
+      }
+    }
+
+    saveSelections();
+    renderProducts();
+    renderSelected();
+
+  } catch (error) {
+    console.error(error);
+
+    productGrid.textContent =
+      "Unable to load products. Please check products.json.";
+  }
 });
