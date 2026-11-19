@@ -5,45 +5,90 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>L'Oréal Smart Beauty Advisor</title>
+  <title>L'Oréal Routine Builder</title>
 
   <link rel="stylesheet" href="style.css">
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  >
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-
   <div class="page-wrapper">
 
     <header class="site-header">
       <p class="brand-name">L'ORÉAL PARIS</p>
-
-      <h1 class="site-title">
-        Smart Beauty Advisor 💄
-      </h1>
-
-      <p class="subtitle">
-        Because You're Worth It
-      </p>
-
+      <h1>Routine Builder</h1>
+      <p class="subtitle">Because You're Worth It</p>
       <p>
-        Discover personalized skincare,
-        makeup, and haircare recommendations
-        designed just for you.
+        Discover beauty products and create a
+        personalized routine designed just for you.
       </p>
     </header>
 
     <main>
-      <section class="chatbox">
 
-        <div class="chat-header">
-          <h2>Your Personal Beauty Assistant</h2>
+      <section class="product-section">
+        <h2>Discover Your Products</h2>
+        <p>Explore products and build your perfect routine.</p>
+
+        <div class="product-controls">
+          <label for="searchInput">Search products</label>
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="Search products..."
+          >
+
+          <label for="categoryFilter">Filter by category</label>
+          <select id="categoryFilter">
+            <option value="all">All Categories</option>
+            <option value="cleanser">Cleansers</option>
+            <option value="moisturizer">Moisturizers</option>
+            <option value="serum">Serums</option>
+            <option value="sunscreen">Sunscreen</option>
+            <option value="haircare">Haircare</option>
+            <option value="makeup">Makeup</option>
+          </select>
+        </div>
+
+        <div id="productGrid" class="product-grid">
+          <!-- Product cards will appear here -->
+        </div>
+
+        <button id="showMoreBtn" type="button">
+          Show More Products
+        </button>
+      </section>
+
+      <section class="selected-section">
+        <h2>Selected Products</h2>
+        <p>Choose products to include in your routine.</p>
+
+        <div id="selectedProducts" class="selected-products">
+          <p>No products selected yet.</p>
+        </div>
+
+        <button id="generateRoutineBtn" type="button">
+          ✨ Generate My Routine
+        </button>
+      </section>
+
+      <section class="routine-section">
+        <h2>Your Personalized Routine</h2>
+
+        <div id="routineOutput" aria-live="polite">
           <p>
-            Ask me anything about your beauty routine!
+            Your personalized beauty routine
+            will appear here.
+          </p>
+        </div>
+      </section>
+
+      <section class="chatbox">
+        <div class="chat-header">
+          <h2>About Your Routine</h2>
+          <p>
+            Ask your personal beauty assistant
+            about your selected products.
           </p>
         </div>
 
@@ -55,18 +100,16 @@
         ></div>
 
         <form id="chatForm" class="chat-form">
-
           <label for="userInput">
             Your beauty question
           </label>
 
           <div class="input-container">
-
             <input
               type="text"
               id="userInput"
               name="userInput"
-              placeholder="Ask about skincare, makeup, or haircare..."
+              placeholder="Ask about your routine..."
               autocomplete="off"
               required
             >
@@ -74,27 +117,21 @@
             <button
               type="submit"
               class="send-button"
-              aria-label="Send message"
             >
               Send ➤
             </button>
-
           </div>
         </form>
-
       </section>
+
     </main>
 
     <footer class="site-footer">
+      <p>L'Oréal Routine Builder</p>
       <p>
-        L'Oréal Smart Beauty Advisor
+        Educational project created for
+        the Global Career Accelerator.
       </p>
-
-      <p>
-        Educational demonstration project
-        created for the Global Career Accelerator.
-      </p>
-
       <p>
         Not affiliated with or endorsed by L'Oréal.
       </p>
@@ -103,6 +140,5 @@
   </div>
 
   <script src="script.js"></script>
-
 </body>
 </html>
